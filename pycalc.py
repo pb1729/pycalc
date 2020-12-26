@@ -31,6 +31,13 @@ tau = 2 * np.pi
 i   = 1j
 rms_sin = sqrt(2) # convert RMS amplitude to actual amplitude
 
+# degree to radian stuff
+deg = pi / 180.
+def deg2rad(x):
+    return x * deg
+def rad2deg(x):
+    return x / deg
+
 # physical constants
 G   = 6.674e-11             # [m.m.m/kg.s.s]
 k_B = 1.380649e-23          # [J/K]
