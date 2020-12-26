@@ -1,6 +1,11 @@
 import numpy as np
-import readline
 import matplotlib.pyplot as plt
+
+try:
+    import readline
+    has_readline = True
+except ModuleNotFoundError:
+    has_readline = False
 
 
 print('\n\t\t\t---- Pycalc ----\n')
@@ -103,7 +108,8 @@ def ldform(query):
             formlist.append(formulas[key])
     if len(formlist) > 0:
         which = int(input('   which formula? >'))
-        readline.replace_history_item(readline.get_current_history_length() - 1, formlist[which]) # replace user entering number with formula
+        if has_readline:
+            readline.replace_history_item(readline.get_current_history_length() - 1, formlist[which]) # replace user entering number with formula
         return formlist[which]
     else:
         return 'no formulas found'
