@@ -62,7 +62,10 @@ day = 86400                 # [s]
 year= 365.2425*day          # [s]
 celsius_0 = 273.15          # [K]
 m_E = 5.9722e24             # [kg]          # Earth Mass
+R_E = 6378137               # [m]           # Earth Radius
 m_S = 1.98847e30            # [kg]          # Sun Mass
+R_S = 696342000             # [m]           # Sun Radius
+AU = 1.495978707e11         # [m]           # Astronomical Unit
 C_H2O = 4179.6              # [J/kg.K]      # Specific Heat Capacity of Liquid Water at 25 Celsius
 
 # united states customary units
@@ -88,6 +91,17 @@ def F2C(F): return (F - 32) * 5/9
 def C2F(C): return 32 + C * 9 / 5
 def C2K(C): return C + celsius_0
 def K2C(K): return K - celsius_0
+
+# rot 13 decoding
+def rot13(s):
+    def rot13_c(c):
+        if 65 <= ord(c) < 91:
+            return chr(65 + (((ord(c) - 65) + 13) % 26))
+        elif 97 <= ord(c) < 123:
+            return chr(97 + (((ord(c) - 97) + 13) % 26))
+        else: return c
+    return ''.join([rot13_c(c) for c in s])
+
 
 # obtaining greek letters:
 get_symb = {'alpha': 'Αα', 'beta': 'Ββ', 'gamma': 'Γγ', 'delta': 'Δδ', 'epsilon': 'Εε',
