@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import ast
 
 try:
     import readline
@@ -155,12 +156,17 @@ def fplot(flst, xlims=[0, 1.], ylims=None):
 def vec(*args):
     return np.array(args)
 
+
+
 if __name__ == '__main__':
     # initialize ans to 0, and make a history list, multiline mode initially false
     ans  = 0
     hist = []
     mult = False
     code = []
+
+    def is_assignment(src):
+        return any([isinstance(expr, ast.Assign) for expr in ast.parse(src).body])
 
     # calc loop
     while True:
@@ -188,7 +194,7 @@ if __name__ == '__main__':
                 code = []
             else:
                 try:
-                    if '=' in inp or '\n' in inp:
+                    if is_assignment(inp) or '\n' in inp:
                         exec(inp)
                     else:
                         result = eval(inp)
