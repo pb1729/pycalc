@@ -110,6 +110,10 @@ get_symb = {'alpha': 'Αα', 'beta': 'Ββ', 'gamma': 'Γγ', 'delta': 'Δδ', '
     'mu': 'Μμ', 'nu': 'Νν', 'xi': 'Ξξ', 'omicron': 'Οο', 'pi': 'Ππ', 'rho': 'Ρρ',
     'sigma': 'Σσς', 'tau': 'Ττ', 'upsilon': 'Υυ', 'phi': 'Φφ', 'chi': 'Χχ', 'psi': 'Ψψ', 'omega': 'Ωω'}
 
+# unicode character codes:
+def uni_code(c):
+    return hex(ord(c))
+
 # make a dictionary of useful formulas
 formulas = {
     'newton gravity': 'F_g = G * m_1 * m_2 / r**2',
