@@ -1,12 +1,39 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import ast
+import os
+
+
+try:
+    import matplotlib.pyplot as plt
+except ModuleNotFoundError:
+    print("Warning: missing plotting library matplotlib")
 
 try:
     import readline
     has_readline = True
 except ModuleNotFoundError:
     has_readline = False
+
+
+try:
+    import anthropic
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    assert api_key is not None
+    _client = anthropic.Anthropic(api_key=api_key)
+    def llm(prompt, hist=None):
+        if hist is not None:
+            prompt = "\n\n".join(hist)
+        message = _client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=2048,
+            messages=[{"role": "user", "content": prompt}])
+        return "\n".join([blk.text for blk in message.content])
+except ModuleNotFoundError:
+    def llm(prompt, hist=None):
+        assert False, "could not import anthropic"
+except AssertionError:
+    def llm(prompt, hist=None):
+        assert False, "no API key was found in the ANTHROPIC_API_KEY environment variable"
 
 
 print('\n\t\t\t---- Pycalc ----\n')
@@ -114,53 +141,27 @@ get_symb = {'alpha': 'Αα', 'beta': 'Ββ', 'gamma': 'Γγ', 'delta': 'Δδ', '
 def uni_code(c):
     return hex(ord(c))
 
-# make a dictionary of useful formulas
-formulas = {
-    'newton gravity': 'F_g = G * m_1 * m_2 / r**2',
-    'newton gravity vector': 'F_g = -G * m_1 * m_2 * r / abs(r)**2',
-    'coulomb electric force': 'F_C = q_1*q_2 / (4*pi*epsilon_0 * r**2)',
-    'coulomb electric force vector': 'F_C = q_1*q_2*r / (4*pi*epsilon_0 * abs(r)**2)',
-    'newton\'s second law vector': 'F = m*a',
-    'angular momentum vector': 'L = cross(r, p)',
-    'centripetal acceleration (angular circle centrifugal)': 'a_c = r * omega**2',
-}
-def ldform(query):
-    """ allows the user to load a formula based on search query """
-    terms = query.split()
-    formlist = []
-    for key in formulas:
-        if all( (term in key) for term in terms ):
-            print(len(formlist), key, ':', formulas[key])
-            formlist.append(formulas[key])
-    if len(formlist) > 0:
-        which = int(input('   which formula? >'))
-        if has_readline:
-            readline.replace_history_item(readline.get_current_history_length() - 1, formlist[which]) # replace user entering number with formula
-        return formlist[which]
-    else:
-        return 'no formulas found'
-
-def fplot(flst, xlims=[0, 1.], ylims=None):
-    """ allows the user to plot a or list of functions, flst,
-    each fn represented either as a string (fn of x) or as a python function """
-    if not isinstance(flst, list):
-        flst = [flst]
-    for f in flst:
-        x = np.linspace(xlims[0], xlims[1], 256)
-        if isinstance(f, str):
-            y = eval(f)
-        else:
-            y = f(x)
-        plt.plot(x, y)
-        if ylims != None:
-            plt.ylim(ylims)
+# plotting
+def plot(x_arr, y_arr, **kwargs):
+    plt.plot(x_arr, y_arr, **kwargs)
     plt.show()
-    return 'plot...'
 
+def yplot(*arrays, **kwargs):
+    for i in range(len(arrays)):
+        plt.plot(arrays[i], **kwargs)
+    plt.show()
+
+# quick vectors:
 def vec(*args):
     return np.array(args)
 
 
+def get_pycalc_source():
+    with open(__file__, "r") as f:
+        return f.read()
+
+
+# Okay here we go, it's the main loop of pycalc!
 
 if __name__ == '__main__':
     # initialize ans to 0, and make a history list, multiline mode initially false
@@ -187,8 +188,11 @@ if __name__ == '__main__':
                 inp = '\n'.join(code)
                 code = []
             else:
-                inp = input('pycalc> ')
-            
+                try:
+                    inp = input('pycalc> ')
+                except KeyboardInterrupt:
+                    print("\nType `quit` to exit.")
+                    continue
             if inp == 'quit':
                 break
             elif inp == '':
@@ -208,5 +212,7 @@ if __name__ == '__main__':
                     hist.append(inp)
                 except Exception as error:
                     print(error)
+                except KeyboardInterrupt:
+                    print("halted.")
 
 
